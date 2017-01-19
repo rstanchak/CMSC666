@@ -1,0 +1,141 @@
+\documentclass{article}
+\usepackage{homework}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{listings}
+\usepackage{graphicx}
+\newcommand{\ea}[1]{\begin{eqnarray*}#1\end{eqnarray*}}
+\newcommand{\eanum}[1]{\begin{eqnarray}#1\end{eqnarray}}
+\newcommand{\leftbrace}[1]{\left\{\begin{array}{ll}#1 \end{array}\right.}
+\newcommand{\norminf}[1]{\left\|{#1}\right\|_\infty}
+\author{Roman Stanchak}
+\title{Homework I}
+\begin{document}
+\bibliographystyle{plain}
+\maketitle
+\problem{1} Show that there exist unique numbers $\gamma_0,\gamma_1\dots\gamma_n$ s.t.:
+\ea{
+	\sum_{j=0}^n \gamma_j p(x_j) = \int_a^b p(x) dx
+}
+for all polynomials $p(x)$ for degree $\le n$.
+\solution{1} 
+$p(x)$ is a polynomial of degree $\le n$, so:
+\ea{
+	p(x) &=& \sum_{i=0}^n \alpha_i x^i\\
+	\int_a^b p(x) dx &=& \sum_{i=0}^n \frac{\alpha_i(b^{i+1} - a^{i+1})}{(i+1)}\\
+	\sum_{j=0}^n \gamma_j p(x_j) &=& \sum_{j=0}^n \gamma_j \left[  \sum_{i=0}^n \alpha_i x_j^i \right]
+}
+This must generalize to any polynomial, and therefore any choice of $\alpha_i$'s.  Thus, 
+for each $\alpha_i$, the component on the left is equivalent to that on the right, and:
+\ea{
+	\sum_{j=0}^n \alpha_i x_j^i &=& \frac{(b^{i+1} - a^{i+1})}{(i+1)}
+}
+Each of the $n$ $\alpha$'s provides a constraint on the $\gamma_i$'s leading to the linear system $A\Gamma=B$, where:
+\ea{
+A &=& \left[
+	\begin{array}{ccccc}
+		1 & 1 & 1 & \dots & 1 \\
+		x_0 & x_1 & x_2 & \dots & x_n \\
+		x_0^2 & x_1^2 & x_2^2 & \dots & x_n^2 \\
+		. & . & . && .\\
+		. & . & . && .\\
+		. & . & . && .\\
+		x_0^n & x_1^n & x_2^n & \dots & x_n^n
+	\end{array}
+	\right] \\
+\Gamma &=& \left[
+\begin{array}{c}
+	\gamma_0 \\
+	\gamma_1 \\
+	\gamma_2 \\
+	.\\
+	.\\
+	.\\
+	\gamma_n 
+\end{array}
+\right] \\
+B &=& 
+\left[
+\begin{array}{c}
+	\frac{(b-a)}{2} \\
+	\frac{(b^2-a^2)}{3} \\
+	.\\
+	.\\
+	.\\
+	\frac{(b^{n+1}-a^{n+1})}{(n+1)} 
+\end{array}
+\right]
+}
+Since the $x_i$'s are unique, then this matrix $A$ is the transpose of the Vandermonde matrix.  It has been shown that this is invertible, and in general, if a matrix is 
+invertible, so is its transpose\cite{mw:transpose}.  Thus, there is unique solution to the set of $\gamma_i$'s.
+\\
+\problem{2} Define a continuous function $g(x)$ s.t.
+\ea{
+	\norminf{ p_n } &=& \norminf{\gamma_n}\norminf{g}
+}
+\solution{2} Expanding the above:
+\ea{
+	\norminf{ \sum_{j=0}^n g(x_j)l_j(x) } &=& \norminf{ \sum_{j=0}^n l_j(x)}\norminf{g}\\
+	\max_{x^*\in[a,b]} \left| \sum_{j=0}^n g(x_j)l_j(x^*) \right| &=& 
+	\max_{x^*\in[a,b]} \left| \sum_{j=0}^n l_j(x^*) \right| 
+	\cdot \max_{x^*\in[a,b]} \left| g(x^*) \right|
+}
+Suppose $g$ is constructed s.t. for some fixed $y$, $\forall i=0,1\dots n, g(x_i)=y$
+and $\forall x\in[a,b], g(x)\le |y|$.  Thus, the above becomes:
+\ea{
+	\max_{x^*\in[a,b]} \left| \sum_{j=0}^n y\cdot l_j(x^*) \right| &=&
+    \max_{x^*\in[a,b]} \left| \sum_{j=0}^n l_j(x^*) \right| \cdot |y| \\
+	% then	
+	\max_{x^*\in[a,b]} \left| \sum_{j=0}^n l_j(x^*) \right| \cdot |y| &=&
+    \max_{x^*\in[a,b]} \left| \sum_{j=0}^n l_j(x^*) \right| \cdot |y|
+	% qed
+}
+And $g$ as described fits the requirements.  Constructing a non-trivial $g$ (i.e. not the uniform function) requires satisfying three conditions: that $g$ is uniform at the $x_i$'s, that is, $g(x_i)=y$; the $x_i$'s are peaks, that is: $g'(x_i)=0$ and the $x_i$'s are also maxima:
+$g(x_i)\ge |g(x)|$.  
+\\ \textit{I was not able to come up with a way of constructing g\dots 
+though it seems related to the Chebyshev polynomial and optimal uniform polynomial.}
+\\
+\problem{3} Prove the error bound for the piecewise linear spline that interpolates a function $f$.
+\solution{3} 
+Take the Taylor expansion of $f(x_j)$ and $f(x_{j+1})$ at the point x:
+\eanum{
+	f(x_{j}) &=& f(x) - f'(x)(x_j-x) + R_1 \\
+	f(x_{j+1}) &=& f(x) - f'(x)(x_{j+1}-x) + R_2
+}
+Where the remainders $R_1,R_2$ are given by \cite{mw:taylor}:
+\eanum{
+R_1 &=& \frac{ (x_j-x)^2 f''(x_j^+) }{2} \textrm{ for some $x_j^{+} \in [x_j,x]$ }\\
+R_2 &=& \frac{ (x_{j+1}-x)^2 f''(x_{j+1}^{-}) }{2} \textrm{ for some $x_{j+1}^{-} \in [x,x_{j+1}]$}
+}	
+Multiply equation (1) by $(x_{j+1}-x)$ and equation (2) by $(x_{j}-x)$, and subtract them:
+\ea{
+\lefteqn{f(x_j)(x_{j+1}-x) - f(x_{j+1})(x_j+1) = \dots}  \\ 
+&&	f(x)(x_{j+1}-x-x_j+x) + (f'(x)-f'(x))(x_j-x)(x_{j+1}-x)+ R_1(x_{j+1}-x) - R_2(x_j-x) \\
+&=& f(x)(x_{j+1}-x_j) + R_1(x_{j+1}-x) - R_2(x_j-x) \\
+&=& f(x)(x_{j+1}-x_j) + R_1(x_{j+1}-x) - R_2(x_j-x) \\
+f(x) &=&  \frac{ f(x_j)(x_{j+1}-x) - f(x_{j+1})(x_j-x) }{(x_{j+1}-x_j)} + \frac{R_1(x_{j+1}-x) - R_2(x_j-x)}{(x_{j+1}-x_j)} \\
+&=& \frac{ f(x_j)(x_{j+1}-x+x_j-x_j) - f(x_{j+1})(x_j-x) }{(x_{j+1}-x_j)} + \dots\\
+&=& \frac{ f(x_j)(x_{j+1}-x_j) + f(x_j)(x_j-x) - f(x_{j+1})(x_j-x) }{(x_{j+1}-x_j)} + \dots\\
+&=& f(x_j) + \frac{ \left(f(x_j) - f(x_{j+1}) \right)(x_j-x) }{(x_{j+1}-x_j)} + \dots\\
+&=& p_n(x) + \dots \\
+f(x)-p_n(x) &=& \frac{R_1(x_{j+1}- x) + R_2(x_j-x)}{(x_{j+1}-x_j)} \\ 
+&=& \left[\frac{ (x_j-x)^2 f''(x_j^+) \cdot(x_{j+1}-x) }{2} + \frac{ (x_{j+1}-x)^2 f''(x_{j+1}^{-}) \cdot(x_j-x)}{2}\right]\frac{1}{( x_{j+1}-x_j)} \\
+&\le& \max_{x_j^*\in[x_j,x_{j+1}]}\left[\frac{ (x_j-x)^2 f''(x_j^*)\cdot(x_{j+1}-x)}{2} + \frac{ (x_{j+1}-x)^2 f''(x_{j}^*)\cdot(x_j-x)}{2}\right]\frac{1}{( x_{j+1}-x_j)} \\ 
+&=& \max_{x_j^*\in[x_j,x_{j+1}]}\frac{ f''(x_j^*)}{2} \cdot 
+\left[\frac{(x_{j+1}-x)(x_j-x)(x_{j+1}-x-x_j+x)}{( x_{j+1}-x_j)}\right] \\
+&=&  \max_{x_j^*\in[x_j,x_{j+1}]}\frac{ f''(x_j^*)}{2} \cdot (x_{j+1}-x)(x_j-x) \\
+\lefteqn{(x_{j+1}-x)(x_j-x) \textrm{ is bounded by } - 1/4(x_{j+1}-x_j)^2\textrm{, so:}}\\
+|f(x)-p_n(x)| &\le& \max_{x_j^*\in[x_j,x_{j+1}]}\frac{ f''(x_j^*)}{8} \cdot (x_{j+1}-x_j)^2 
+}
+Expanding this definition to the entire range of $[a,b]$:
+\ea{
+	|f(x)-p_n(x)| &\le& \frac{h^2}{8} \max_{\xi\in[a,b]}f''(\xi)
+}
+Where $h=max_j(x_{j+1}-x_j)$.\\
+\\
+\\
+\textit{Note:} I had some help from \cite{195501}, but the proof there is very terse, so filling in the steps was non-trivial.  It was most helpful in leading me to realize I 
+could take a Taylor expansion of $f(x_j)$ and $f(x_{j+1})$ about $x$ instead of $f(x)$ about $x_j,x_{j+1}$.
+\\
+\bibliography{hw2}
+\end{document}

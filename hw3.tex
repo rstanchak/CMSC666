@@ -1,0 +1,59 @@
+\documentclass{article}
+\usepackage{homework}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{listings}
+\usepackage{graphicx}
+\newcommand{\ea}[1]{\begin{eqnarray*}#1\end{eqnarray*}}
+\newcommand{\eanum}[1]{\begin{eqnarray}#1\end{eqnarray}}
+\newcommand{\leftbrace}[1]{\left\{\begin{array}{ll}#1 \end{array}\right.}
+\newcommand{\norminf}[1]{\left\|{#1}\right\|_\infty}
+\author{Roman Stanchak}
+\title{Homework III}
+\begin{document}
+\bibliographystyle{plain}
+\maketitle
+\problem{1} Derive an error bound for Simpson's rule.
+\solution{1} The error for a general quadrature rule is as follows:
+\ea{
+	E(f) &=&  I(f) - Q(f) \\
+	&=&  \int_a^b f(x)dx - \int_a^b p_n(x) dx \\
+	&=& \int_a^b \left[ f(x) - p_n(x) \right] dx \\
+	&=& \int_a^b \left[ (x-x_0)\cdot(x-x_1)\dots(x-x_n) \frac{f^{(n+1)}(x)}{(n+1)!} \right] dx
+}
+For Simpson's rule, $n=2$, so $x_0=a,x_1=\frac{a+b}{2},x_2=b$, and:
+\ea{
+E(f) &=& \int_a^b \left[ (x-a)\left(x-\frac{a+b}{2}\right)(x-b) \frac{f^{(3)}(x)}{3!}\right] dx
+}
+Let $w(x) = (x-a)\left(x-\frac{a+b}{2}\right)(x-b)$.
+Then
+\ea{
+	E(f) &=& \int_a^b w(x) \frac{ f^{(3)}(x) }{ 6 } dx
+}
+If $w(x)$, can be shown to be one sign, then the mean value theorem can be applied to pull $f[a,b,x]$ out of the integral.  However:
+\ea{
+	w(x) = \leftbrace{ \le 0 & a\le x \le \frac{a+b}{2} \\
+	                   \ge 0 & \frac{a+b}{2} \le x \le b 
+					  }
+}
+So $w(x)$ is not of one sign, but by splitting the integral into two parts:
+\ea{
+E(f) &=& \int_a^{ \frac{a+b}{2} } w(x) f^{(3)} dx + 
+\int_{ \frac{a+b}{2} }^b w(x) f^{(3)} dx
+}
+$w(x)$ is one sign on the new bounds of integration.  Thus, the mean value theorem applies to each part and:
+\ea{
+	E(f) &=& f^{(3)}(\xi) \int_a^{ \frac{a+b}{2} } w(x) dx +
+	f^{(3)}(\xi') \int_{ \frac{a+b}{2} }^b w(x) dx
+}
+For some $\xi,\xi' \in [a,b]$.  Thus, it also true that $\exists \zeta \in [a,b]$:
+\ea{
+	E(f) \le f^{(3)}(\zeta) \left[  \int_a^{ \frac{a+b}{2} } w(x) dx + 
+		\int_{ \frac{a+b}{2} }^b w(x) dx \right]
+}
+Doing some algebra:
+\ea{
+	\int w(x) dx &=&  \int (x-a)(x-(a+b)/2)(x-b)dx\\
+	\dots
+}
+\end{document}

@@ -1,0 +1,37 @@
+A:={ {1, x0, x0^2, x0^3}, 
+     {0,  1, 2*x0, 3*x0^2},
+	 {1, x1, x1^2, x1^3},
+	 {0, 1, 2*x1, 3*x1^2} };
+
+f:={ {f0}, {df0}, {f1}, {df1} };
+
+a:=Inverse(A)*f;
+
+a0 := Simplify({ LeadingCoef(a[1][1], f0), LeadingCoef(a[2][1],f0),  
+	LeadingCoef(a[3][1],f0),  LeadingCoef(a[4][1],f0) });
+a1 := Simplify({ LeadingCoef(a[1][1], f1), LeadingCoef(a[2][1],f1),  
+	LeadingCoef(a[3][1],f1),  LeadingCoef(a[4][1],f1) });
+b0 := Simplify({ LeadingCoef(a[1][1], df0), LeadingCoef(a[2][1],df0),
+	LeadingCoef(a[3][1],df0),  LeadingCoef(a[4][1],df0) });
+b1 := Simplify({ LeadingCoef(a[1][1], df1), LeadingCoef(a[2][1],df1),
+	LeadingCoef(a[3][1],df1),  LeadingCoef(a[4][1],df1) });
+For(i:=1,i<=4,i++)
+[
+	a0[i]  := Simplify( Numer(a0[i])/(x1-x0) ) / 
+	          Simplify( Denom(a0[i])/(x1-x0)^4 );
+	a1[i]  := Simplify( Numer(a1[i])/(x1-x0) ) / 
+	          Simplify( Denom(a1[i])/(x1-x0)^4 );
+	b0[i]  := Simplify( Numer(b0[i])/(x1-x0) ) / 
+	          Simplify( Denom(b0[i])/(x1-x0)^4 );
+	b1[i]  := Simplify( Numer(b1[i])/(x1-x0) ) / 
+	          Simplify( Denom(b1[i])/(x1-x0)^4 );
+];
+PrettyForm(a0);
+PrettyForm(a1);
+PrettyForm(b0);
+PrettyForm(b1);
+a0(x) := a0[1] + a0[2]*x + a0[3]*x^2 + a0[4]*x^3;
+a1(x) := a1[1] + a1[2]*x + a1[3]*x^2 + a1[4]*x^3;
+b0(x) := b0[1] + b0[2]*x + b0[3]*x^2 + b0[4]*x^3;
+b1(x) := b1[1] + b1[2]*x + b1[3]*x^2 + b1[4]*x^3;
+

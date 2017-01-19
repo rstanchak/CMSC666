@@ -1,0 +1,353 @@
+\documentclass{article}
+\usepackage{homework}
+\usepackage{amsmath}
+\usepackage{amsthm}
+\usepackage{listings}
+\usepackage{graphicx}
+\newcommand{\ea}[1]{\begin{eqnarray*}#1\end{eqnarray*}}
+\newcommand{\eanum}[1]{\begin{eqnarray}#1\end{eqnarray}}
+\newcommand{\leftbrace}[1]{\left\{\begin{array}{ll}#1 \end{array}\right.}
+\newcommand{\norminf}[1]{\left\|{#1}\right\|_\infty}
+\newcommand{\twonorm}[1]{\left\|{#1}\right\|_{2}}
+\newcommand{\mat}[2]{\left[\begin{array}{#1}#2\end{array}\right]}
+\newcommand{\inv}[1]{#1^{-1}}
+\newcommand{\R}{\mathcal{R}}
+\author{Roman Stanchak}
+\title{Homework 4}
+\begin{document}
+\bibliographystyle{plain}
+\maketitle
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{1} Show the Gram-Schmidt method can be viewed as a technique for 
+computing a QR factorization of A.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{1} The Gram-Schmidt method produces a set of orthonormal basis vectors
+$\{q_1, q_2, \dots, q_n\}$.  Any arbitrary vector can be represented in this 
+basis as a multiplication of the matrix $Q=[q_1, q_2, \dots q_n]$ by some vector
+of coefficients, $r$.  Consider the columns of $A=[a_1, a_2,\dots a_n]$.  
+The vector $a_1$ is orthogonalized by normalizing it, that is, 
+$a_1=||a_1||\cdot q_1$, or in other words:
+\ea{ r_1 &=& \mat{c}{||a_1||\\0\\0\\.\\.\\.\\0} \\
+	&\mbox{and}& \\
+     Qr_1 &=& a_1 
+}
+An arbitrary column $a_i$ of $A$, is orthogonalized by 
+\ea{ \hat{q_i}&=& a_i-\sum_{j=1}^{i-1} <a_i,q_j>q_j \\
+     q_i &=& \frac{\hat{q_i}}{||\hat{q_i}||} \\
+	 a_i &=& ||\hat{q_i}||q_i + \sum_{j=1}^{i-1} <a_i,q_j>q_j
+}
+Or in vector form
+\ea{ r_i &=& \mat{c}{
+			<a_i,q_1>\\
+			<a_i,q_2>\\
+			.\\.\\.\\
+			<a_i,q_{i-1}>\\
+			||\hat{q_2}||\\
+			0\\.\\.\\.\\0
+		}\\ 
+	&\mbox{and}& \\
+     Qr_i &=& a_i
+}
+Concatenating the vectors $r_i$ into matrix form constructs
+an upper triangular matrix $R={r_1,r_2,\dots,r_n}$, for which it is true that:
+\ea{ 
+Q\mat{cccc}{ | & | & & | \\
+            r_1 & r_2 &\dots &r_n \\
+		     |  & | & & | }
+			 &=& \mat{cccc}{ | & | & & | \\
+			                 a_1 & a_2 & \dots & a_n \\
+							  |  & | & & | } \\
+	&\mbox{and}& \\
+	QR&=& A
+}
+Since $Q$ is orthonormal and $R$ is upper triangular, this is precisely a QR
+factorization of $A$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{2} For symmetric matrix $A$, show that for the Rayleigh quotient, $\R(x)$, 
+$\max_{x \ne 0} \R(x)=\lambda_{max}(A)$, and $\min_{x\ne 0} \R(x)=\lambda_{min}(A)$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{2} 
+\ea{ \R(x) &=& \frac{ <x,Ax> }{ <x,x> } \\
+	&=& \frac{ x^*Ax }{ x^*x } \\
+}
+$A$ is symmetric, so $A$ has a full set of eigenvalues and eigenvectors, and can
+be broken down using the Schur decomposition
+\ea{
+	A &=& U \Lambda U^* \\
+	\textrm{where:} & & U \textrm{ is a unitary matrix whose columns are eigenvectors of $A$} \\
+					& & \Lambda \textrm{ is a diagonal matrix whose entries are eigenvalues} \\
+	\R(x) &=& \frac{ x^* U \Lambda U^* x }{x^*x}\\
+	&=& \frac{ x^* U \Lambda U^* x }{x^*UU^*x}\\
+	\textrm{let: } w &=& U^*x \\
+	&=& \frac{ w^*\Lambda w }{w^*w} \\
+	&=& <w,w>^{-1} \sum (\lambda_i w_i^2)
+}
+Thus:
+\ea{
+	\min_{x\neq 0} \R(x) &=& \lambda_{min} \\
+	\max_{x\neq 0} \R(x) &=& \lambda_{max}
+}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{3a} For the Lanczos recurrence applied to a symmetric matrix $A$, show 
+that the vectors $\{v_j\}$ make up an orthonormal set.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{3a} Proof by induction on $j$.  \textbf{Base case} $j=2$. \\
+Show $<v_1,v_2>=0$, $<v_2,v_2>=1$. \\
+$<v_2,v_2>=1$ by construction of $v_2$ as a unit vector.
+\ea{ 
+	\beta_2 v_2 &=& A v_1 - \alpha_1 v_1 - 0 \\
+	\\
+	<v_1,v_2> &=& v_1^T \frac{A v_1 - \alpha_1 v_1} { \beta_2 } \\
+	&=& \beta_2^{-1}\left( v_1^T A v_1 - \alpha_1 v_1^Tv_1 \right) \\
+	&=& \beta_2^{-1}\left( v_1^T A v_1 - \alpha_1 \right) \\
+	&=& \beta_2^{-1}\left( v_1^T A v_1 - v_1^T A v_1 \right) \\
+	&=& 0
+}
+\textbf{Base case} $j=3$. \\
+Show $<v_1,v_3>=0$, $<v_2,v_3>=0$, $<v_3,v_3>=1$. \\
+Again, $<v_3,v_3>=1$ by construction of $v_3$ as a unit vector.
+\ea{
+	\beta_3 v_3 &=& A v_2 - \alpha_2 v_2 - \beta_2 v_1 \\
+	\\
+	<v_2,v_3> &=& v_2^T\frac{A v_2 - \alpha_2 v_2 - \beta_2 v_1} { \beta_3 } \\
+	&=& \beta_3^{-1}\left( v_2^T A v_2 - \alpha_2 v_2^T v_2 - \beta_2 v_2^T v_1 \right) \\
+	&=& \beta_3^{-1}\left( \alpha_2 - \alpha_2 \cdot 1 - 0 \right) \\
+	&=& 0 \\
+	\\
+	<v_1,v_3> &=& v_1^T\frac{A v_2 - \alpha_2 v_2 - \beta_2 v_1} { \beta_3 } \\
+	&=& \beta_3^{-1}\left( v_1^T A v_2 - \alpha_2 v_1^T v_2 - \beta_2 v_1^T v_1 \right) \\
+	&=& \beta_3^{-1}\left( v_1^T A v_2 - 0 - \beta_2 \right) 
+}
+Note that:
+\ea{
+	\beta_2 &=& \frac{<v_2,\beta_2 v_2>}{<v_2,v_2>} \\
+	&=& <v_2,\beta_2 v_2>\\
+	&=& v_2^T A v_1 - \alpha_1 v_2^T v_1 \\
+	&=& v_2^T A v_1
+}
+So:
+\ea{
+	<v_1,v_3> &=& \beta_3^{-1}\left( v_1^T A v_2 - v_2^T A v_1 \right)\\
+}
+And since $A$ is symmetric:
+\ea{
+	&=& \beta_3^{-1}\left( v_1^T A v_2 - v_1^T A v_2 \right)\\
+	&=& 0
+}
+\textbf{Inductive Case} Assume $<v_i,v_j>=\delta_{i,j} \forall i,j < k$.  Show
+for $k$.
+\ea{
+	\beta_k v_k &=&  A v_{k-1} - \alpha_{k-1}v_{k-1}-\beta_{k-1}v_{k-2}
+}
+Again, by construction of $v_k$ as a unit vector, $<v_k,v_k>=1$.
+Case 1, show $<v_{k-1},v_k>=0$:
+\ea{
+<v_{k-1}, v_k> &=& \beta_k^-1 \left( v_{k-1}^T A v_{k-1}^T 
+	- \alpha_{k-1} v_{k-1}^T v_{k-1} - \beta_{k-1} v_{k-1}^T v_{k-2} \right) \\
+	&=& \beta_k^-1 \left( \alpha_{k-1} - \alpha_{k-1} \cdot 1 - 0 \right) \textrm{  (By IH). } \\
+	&=& 0 \\
+	\\
+}
+Case 2, show $<v_{k-2},v_k>=0$:
+\ea{
+<v_{k-2}, v_k> &=& \beta_k^{-1} \left( v_{k-2}^T A v_{k-1}^T 
+    - \alpha_{k-1} v_{k-2}^T v_{k-1} - \beta_{k-1} v_{k-2}^T v_{k-2} \right) \\
+	&=& \beta_k^{-1} \left( v_{k-2}^T A v_{k-1} - 0 - \beta_{k-1}\cdot 1 \right) \textrm{   (By IH). }
+}
+Note that:
+\ea{
+	\beta_j &=& <v_j,\beta v_j> \\
+	&=& v_j^T A v_{j-1} - \alpha_{j-1} v_j^T v_{j-1} - \beta_{j-1} v_j^T v_{j-1} \\
+	&=& v_j^T A v_{j-1} - 0 - 0 \textrm{   (By IH, assuming $j<k$)   }\\
+	&=& v_j^T A v_{j-1} = v_{j-1}^T A v_{j} \textrm{   (A is symmetric) }
+}
+Thus, 
+\ea{
+<v_{k-2}, v_k> &=& \beta_k^{-1} \left( \beta_{k-1} - \beta_{k-1} \right)\\
+&=& 0
+}
+Case 3, show $<v_j,v_k>=0, \forall j<k-2$:
+\ea{
+<v_j,v_k> &=& \beta_k^{-1} \left( v_j^T A v_{k-1} - \alpha_{k-1} v_{j}^T v_{k-1} - \beta_{k-1} v_j^T v_{k-2} \right) \\
+&=& \beta_k^{-1} \left( v_j^T A v_{k-1} - \alpha_{k-1} \cdot 0 - \beta_{k-1} \cdot 0 \right) \textrm{    (By IH) }\\
+&=& \beta_k^{-1} \left( v_j^T A v_{k-1} \right)
+}
+Need to show that $v_{k-1}^T A v_j = 0, \forall j<k-2$. Expanding the LHS:
+\ea{
+v_{k-1}^T v_j &=& v_{k-1}^T A v_{j-1} - \alpha_{i-1} v_{k-1}^T v_{j-1} - \beta_{i-1} v_{k-1}^T v_{j-2} \\
+&=& v_{k-1}^T A v_{j-1} - 0 - 0 \textrm{    (By IH)}\\
+&=& v_{k-1}^T A v_j\\
+&=& v_j A v_{k-1}^T \textrm{  (By symmetry) }\\
+v_j^T A v_{k-1} &=& 0
+}
+Thus:
+\ea{
+<v_j,v_k> &=& \beta_k^{-1} \cdot 0 \\
+&=& 0
+}
+Therefore, by PI, $<v_i,v_j>=\delta_i,\forall i,j$, and the vectors ${v_j}$ make up an orthonormal set.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{3b} Prove that $v_j$ = 0 for some $j\le n+1$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{3b} 
+$\{v_j\}$ are an othornormal basis for $\{v, Av, A^2v \dots \}$. ????
+% v1 = arbitrary unit vector
+% ~v2 = Av1 - v1Av1 v1 - 0 
+%    = Av1 - <v1,Av1> v1
+% v2^T v2 = v2Av1
+% ~v3 = A ~v2/<~v2,~v2> - alpha_2 ~v2/<~v2,~v2> - beta_2 v1
+% v3 = Av2 - <v2,Av2>/<v2,Av1> v2 - <v1,Av1> v1
+% v3 = A(Av1 - <v1,Av1> v1)/<v2,Av1> - <v2,Av2>/<v2,Av1> (Av1 - <v1,Av1> v1)/<v2,Av1> - <v1,Av2> v1
+% v3 = A^2/<v2,Av1> v1 - <v1,Av1>/<v2,Av1> Av1 - <v2,Av2>/<v2,Av1>^2 Av1 - <v2,Av2><v1,Av1>/<v2,Av1>^2 v1 - <v1,Av2> v1
+% v3 = 1/<v2,Av1> ( A^2 v1 - ( <v1,Av1 - <v2,Av2>/<v2,Av1> ) Av1 - <v2,Av2><v1,Av1>/<v2,Av2> v1) -<v1,Av2> v1
+% v3 = A^2v1 - <A^2v1, Av1>/<Av1,Av1> Av1 - <A^2v1, v1> v1 
+% v4 = A^3v1 - <A^3v1, A^2v1>/<A^2v1,A^2v1> A^2v1 - ...
+
+% if v2 = 0, then Av1 = v1Av1 v1 --> v1 is an eigenvector of A, v1Av1 is an eigenval
+% if v3 = 0, then Av2 - <v2,Av2> v2 - <v1,Av2> v1 = 0
+% Av2 = <v2, Av2> v2 + <v1, Av2> v1  ~ linear combination of existing basis
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{3c} Prove that if $v_{j+1}=0$, thet the eigen values of the tridiagonal 
+matrix $T_j$ are also eigenvalues of A.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{3c} If $V = \{v_1, v_2 \dots v_j\}$, and $v_{j+1}=0$, then:
+\ea{ AV &=& VT_j }
+If $\lambda$ is an eigenvalue of $T_j$, and $x$ is the associated eigenvector, 
+then:
+\ea{ 
+T_jx&=& \lambda x\\
+VT_jx &=& \lambda V x\\
+AVx&=& \lambda V x\\
+}
+Let $w=Vx$:
+\ea{
+Aw=\lambda w
+}
+Thus, $\lambda$ is also an eigenvalue of $A$ and $w=Vx$ is the associated 
+eigenvector.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{4} Give a geometric interpretation of the result of applying the 
+Householder transformation
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{4} Rewriting the Householder transformation as:
+\ea{
+	T(x) &=& x - 2vv^Tx \\
+	&=& x - 2v<v,x> 
+}
+If $x$ is represented in the basis $\{v, u_2 \dots u_{n}\}$, where $u_2\dots u_n$ 
+are an orthonormal 
+basis of the (n-1) dimensional subspace orthogonal to $v$, that is, 
+$x=c_1 v + \sum_i=2^n c_i u_i$:
+\ea{
+	T(x) &=& c_1 v + \sum_i=2^n c_i u_i - 2v <v, c_1 v + \sum_i=2^n c_i u_i> \\
+	&=& c_1 v + \sum_i=2^n c_i u_i - 2v \cdot (c_1 + 0) \textrm{   ($v$ is orthogonal to $u_i$) }\\
+	&=& -c_1 v + \sum_i=2^n c_i u_i
+}
+The result is identical to $x$ except that the component of $x$ in the direction 
+of $v$ has been flipped.  Geometrically, this is the reflection of $x$ through 
+the hyperplane whose normal is $v$, and is spanned by the basis ${u_i}$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{5} For a square matrix $A$, show how the power method can be 
+generalized to find an interior eigenvalue $\lambda$ given some estimate 
+$\sigma$ of that eigenvalue.   Describe under which conditions the method is
+guaranteed to find $\lambda$.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\solution{5} Let $\sigma = \lambda-\epsilon$, that is, the true eigenvalue, plus
+an unknown shift.  If $v$ is the eigen vector associated with $\lambda$, then:
+\ea{ 	Av&=& \lambda v \\
+		Av&=& (\sigma+\epsilon) v\\
+		Av-\sigma v&=& \epsilon v\\
+		(A-\sigma I) v &=& \epsilon v
+}
+Thus, $\epsilon$ is an eigenvalue of $(A-\sigma I)$.  Furthermore, since it 
+assumed that $\lambda$ is the closest eigenvalue to $\sigma$, then the desired 
+$\epsilon$ is the minimum eigenvalue of $(A-\sigma I)$.  The minimum eigenvalue of
+this matrix can be derived using the Power Method on the inverse of $A-\sigma I$,
+which of course requires this matrix be invertible for this method to work.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\problem{6} The matrix $A$'s first two columns, $a_1,a_2$ are such that \\
+\ea{ |a_1^T a_2| \ge ||a_1||_2||a_2||_2(1-\epsilon) }
+Prove that either $A$ is singular or $\kappa(A)\ge\frac{1}{\sqrt{\eta}}$.
+\solution{6}
+\ea{
+\twonorm{A}&=& max_{x\neq 0} \frac{\twonorm{Ax}}{\twonorm{x} } \\
+		   &=& max_{x\neq 0} \sqrt{\left[  
+		   \frac{\twonorm{Ax}}{\twonorm{x}} \right] } \\
+		   &=& max_{x\neq 0} \sqrt{ \left[ \frac{<Ax,Ax>}{<x,x>} \right] } \\
+		   &=& max_{x\neq 0} \sqrt{ \left[ \frac{ x^TA^TAx }{x^Tx} \right] } \\
+		   &=& \sqrt{ max_{x\neq 0} \frac{ x^TA^TAx }{x^Tx} } \\
+		   &=& \sqrt{ max_{x\neq 0} \R_{A^TA}(x) } \\
+		   &=& \sqrt{ \lambda_{max}(A^TA) }
+}
+\ea{
+\twonorm{\inv{A}} &=& max_{x\neq 0} \frac{ \twonorm{\inv{A}x}} { \twonorm{x} } \\
+		   &=& max_{x\neq 0} \sqrt{\left[  
+		   \frac{\twonorm{\inv{A}x}}{\twonorm{x}} \right] } \\
+		   &=& \sqrt{ max_{x\neq 0} \R_{A^{-T}A^{-1}}(x) } \\
+	&=& \sqrt{ \lambda_{max}(A^{-T}A^{-1}) } \\
+	&=& \sqrt{ \frac{1}{\lambda_{min}(AA^T)} }
+}
+Note that $AA^T$ and $A^TA$ have the same eigenvalues:
+\ea{
+	AA^Tv=\lambda v \\
+	A^TA(A^Tv)=\lambda A^Tv\\
+}
+Substituting $w=A^Tv$:
+\ea{
+	A^TA w = \lambda w
+}
+Thus:
+\ea{
+\twonorm{\inv{A}} &=& \frac{1}{\sqrt{\lambda_{min}(A^TA)}}
+}
+The condition number $\kappa$ of the matrix $A$ is therefore:
+\ea{
+\kappa(A)&=& \twonorm{A}\twonorm{\inv{A}} \\
+&=& \sqrt \frac{\lambda_{max}(A^TA)}{\lambda_{min}(A^TA)}
+}
+\ea{
+A^TA &=& \mat{ccc}{ 
+	- & a_1^T & - \\
+	- & a_2^T & - \\
+	  & \dots & \\
+	- & a_n^T & -
+	  }
+	  \mat{cccc}{
+	  | & | & & | \\
+	  a_1 & a_2 & \dots & a_n \\
+	  | & | & & |
+	 }\\
+	 &=& \mat{cccc}{
+	 	a_1^Ta_1 & a_1^Ta_2 & \dots & a_1^Ta_n \\
+		a_2^Ta_1 & a_2^Ta_2 & \dots & a_2^Ta_n \\
+		   . & & & . \\
+		   . & & & . \\
+		   . & & & . \\
+		   a_n^Ta_1 & a_n^Ta_2 & \dots & a_n^Ta_n 
+		}
+}
+In the 2D case:
+\ea{
+\lambda_{max} &=&  \twonorm{a_1}^2 + \twonorm{a_2}^2 + \sqrt{ \twonorm{a_1}^4 + \twonorm{a_2}^4 - 2 \twonorm{a_1}^2 \twonorm{a_2}^2 + 4 a_1^Ta_2 }  \\
+\lambda_{min} &=&  \twonorm{a_1}^2 + \twonorm{a_2}^2 - \sqrt{ \twonorm{a_1}^4 + \twonorm{a_2}^4 - 2 \twonorm{a_1}^2 \twonorm{a_2}^2 + 4 a_1^Ta_2 }  
+}
+How to proceed?
+\end{document}
